@@ -1,6 +1,8 @@
 #ifndef __STM32F4XX__
 #define __STM32F4XX__
 #include <stdint.h>
+
+#define NULL ((void*)0)
 /*
  *base adress of SRAM and Flash
  */

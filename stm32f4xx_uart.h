@@ -47,7 +47,7 @@ typedef enum {
 
 
 /* *************************************************************
- * @fn            - usart_init
+ * @fn            - uart_init
  *
  * @brief         - Function to initialize the usart
  * 
@@ -57,10 +57,10 @@ typedef enum {
  * note           - null
  */
 
-void usart_init(uart_handle_t usart);
+void uart_init(uart_handle_t uart);
 
 /* *************************************************************
- * @fn            - usart_tx
+ * @fn            - uart_tx
  *
  * @brief         - Function to send the data
  * 
@@ -71,10 +71,10 @@ void usart_init(uart_handle_t usart);
  * note           - null
  */
 
-void usart_tx(uart_handle_t usart, uint8_t byte);
+void uart_tx(uart_handle_t uart, uint8_t data);
 
 /* *************************************************************
- * @fn            - usart_rx
+ * @fn            - uart_rx
  *
  * @brief         - Function to send the data
  * 
@@ -84,5 +84,33 @@ void usart_tx(uart_handle_t usart, uint8_t byte);
  * note           - null
  */
 
-uint8_t usart_rx(uart_handle_t usart);
+uint8_t uart_rx(uart_handle_t uart);
+/* *************************************************************
+ * @fn            - uart_write
+ *
+ * @brief         - Function to send array of data 
+ * 
+ * @param[in]     - handle of the usart
+ * @param[in]     - pointer to buffer
+ * @param[in]     - length of data
+ * 
+ * @return        - void
+ * note           - null
+ */
+
+void uart_write(uart_handle_t uart, void *data, int len);
+/* *************************************************************
+ * @fn            - uart_read
+ *
+ * @brief         - Function to read array of data
+ * 
+ * @param[in]     - handle of the usart
+ * @param[in]     - pointer to buffer
+ * @param[in]     - length of data
+ * 
+ * @return        - length of data recieved
+ * note           - null
+ */
+
+int  uart_read(uart_handle_t uart, void *data, int len);
 #endif

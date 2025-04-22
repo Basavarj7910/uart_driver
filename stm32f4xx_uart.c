@@ -3,12 +3,33 @@
 #include "stm32f4xx_uart.h"
 
 USART_Reg_Def_t *UART;
-
+#define PERI_CLK 16000000
+uint8_t tx_buf[512];
+uint8_t rx_buf[512];
+int tx_head = 0;
+int tx_tail = 0;
+int rx_head = 0;
+int rx_tail = 0;
 void uart_irq_handler()
 {
-
+    if (UART->USART_SR & ( 1<< 5)) {
+        uint8_t data = UART->USART_DR;
+        while(!(UART->USART_SR & ( 1 << 6)));
+        UART->USART_DR = data;
+    }
 }
-void usart_init(uart_handle_t uart)
+
+static uint32_t calculate_baudrate(uint32_t peri_clk, uint32_t baudrate) 
+{
+    return ((peri_clk + (baudrate / 2U))/baudrate);
+}
+
+static void set_baudrate(uart_handle_t uart, uint32_t peri_clk, uint32_t baudrate)
+{
+    uart.uart->USART_BRR = calculate_baudrate(peri_clk, baudrate);
+}
+
+void uart_init(uart_handle_t uart)
 {
     if (uart.uart == USART1) {
         UART = USART1;
@@ -108,20 +129,86 @@ void usart_init(uart_handle_t uart)
     } else if (uart.conf.over_sample == OVER8) {
         uart.uart->USART_CR1 |= (1 << 15);
     }
-    uart.uart->USART_BRR  = uart.conf.baudrate;
+    //uart.uart->USART_BRR  = uart.conf.baudrate;
+    //uart.uart->USART_BRR  = 0x683;
+    set_baudrate(uart, PERI_CLK, uart.conf.baudrate);
     if (uart.conf.mode == MODE_RX) {
          uart.uart->USART_CR1 |= ( 1<< 2);
-         uart.uart->USART_CR1 |= ( 1<< 5);
+         //uart.uart->USART_CR1 |= ( 1<< 5);
     } else if (uart.conf.mode == MODE_TX) {
          uart.uart->USART_CR1 |= ( 1<< 3);
-         uart.uart->USART_CR1 |= ( 1<< 6);
+         //uart.uart->USART_CR1 |= ( 1<< 6);
     } else if (uart.conf.mode == MODE_RX_TX) {
          uart.uart->USART_CR1 |= ( 1<< 2);
-         uart.uart->USART_CR1 |= ( 1<< 5);
+         //uart.uart->USART_CR1 |= ( 1<< 5);
          uart.uart->USART_CR1 |= ( 1<< 3);
-         uart.uart->USART_CR1 |= ( 1<< 6);
+         //uart.uart->USART_CR1 |= ( 1<< 6);
     }
     uart.uart->USART_CR1 |= ( 1<< 13);
     
 }
 
+void uart_tx(uart_handle_t uart, uint8_t data) {
+   while(!(uart.uart->USART_SR & ( 1 << 6)));
+   uart.uart->USART_DR = data;
+}
+
+
+uint8_t uart_rx(uart_handle_t uart) {
+   while(!(uart.uart->USART_SR & ( 1 << 5)));
+    return uart.uart->USART_DR;
+}
+
+void uart_write(uart_handle_t uart, void *data, int len) 
+{
+    if (data == NULL) {
+        return;
+    }
+    uint8_t *buf = (uint8_t *) data;
+    for (int i = 0;i<len;i++) {
+        uart_tx(uart,buf[i]); 
+        //uart_tx(uart, *(((uint8_t *)data) + i);
+        //uart_tx(uart, ((uint8_t *)data)[i]);
+    }
+}
+
+int  uart_read(uart_handle_t uart, void *data, int len) 
+{
+    if (data == NULL) {
+        return 0;
+    }
+    int i = 0;
+    while ( i < len) {
+        ((uint8_t *)data)[i++] = uart_rx(uart);
+    }
+    return i;
+}
+
+//void uart_write(uart_handle_t uart, void *data, int len) 
+//{
+//    if (data == NULL) {
+//        return;
+//    }
+//    uint8_t *buf = (uint8_t *) data;
+//    for (int i = 0;i<len;i++) {
+//        tx_buf[tx_head++] = buf[i];
+//        if (tx_head >= sizeof(tx_buf))
+//            tx_head = 0;
+//    }
+//    if(!tx_busy) {
+//       uart
+//    }
+//
+//}
+//
+//int  uart_read(uart_handle_t uart, void *data, int len) 
+//{
+//    if (data == NULL) {
+//        return 0;
+//    }
+//    int i = 0;
+//    while ( i < len) {
+//        ((uint8_t *)data)[i++] = uart_rx(uart);
+//    }
+//    return i;
+//}
