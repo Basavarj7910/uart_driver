@@ -3,6 +3,9 @@
 #include <stdint.h>
 
 #define NULL ((void*)0)
+#define CPACR ((uint32_t *)0xE000ED88U)
+#define SYST_BASE 0xE000E010U
+
 /*
  *base adress of SRAM and Flash
  */
@@ -43,6 +46,14 @@
 #define HAL_GPIOJ_BASEADDR 0x40022400U
 #define HAL_GPIOK_BASEADDR 0x40022800U
 
+typedef struct {
+    volatile uint32_t CSR;
+    volatile uint32_t RVR;
+    volatile uint32_t CVR;
+    volatile uint32_t CALIB;
+}SYS_RegDef_t;
+
+#define SYST ((SYS_RegDef_t*)SYST_BASE)
 
 /* 
  *Definining base adress of peripherals hanginh on APB1 BUS

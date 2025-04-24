@@ -5,6 +5,7 @@
 .extern _ebss
 
 .extern uart_irq_handler
+.extern SysTick_Handler
 
 .section .bss
   array: .space 10
@@ -24,6 +25,8 @@
     vector_table:
           .word 0x20020000
           .word reset_handler
+          .org 0x3C
+          .word SysTick_Handler
           .org 0xD8
           .word uart_irq_handler
           .zero 400
